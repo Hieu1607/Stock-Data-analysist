@@ -24,11 +24,11 @@ class Trading:
         """
         trade_signal = np.zeros(len(y_predicted))
         for i in range(1, len(y_predicted)):
-            if y_predicted[i] == np.nan:
+            if y_predicted[i] == np.nan or y_predicted[i] == 0:
                 trade_signal[i] = 0
-            elif y_predicted[i] > y_predicted[i-1]:
+            elif y_predicted[i] >= y_predicted[i-1] or y_predicted[i] == 1:
                 trade_signal[i] = 1
-            elif y_predicted[i] < y_predicted[i-1]:
+            elif y_predicted[i] < y_predicted[i-1] or y_predicted[i] == -1:
                 trade_signal[i] = -1
         return trade_signal
     
