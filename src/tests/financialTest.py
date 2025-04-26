@@ -84,6 +84,51 @@ def financialTest(df,model=None,feature_columns=None,target_column=None):
         # Predict y
         y_test = model.predict(X_test)
         y_predict = np.pad(y_test, (len(y_train), 0),mode= 'constant', constant_values=0)
+    
+    if model == 'NeuralNetwork':
+        import os
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+        import tensorflow as tf
+        from tensorflow import keras
+        from keras import layers
+        import numpy as np
+
+        tf.get_logger().setLevel('ERROR')
+
+        X,y = prepare_data_for_decision_tree(df, selected_features, target_feature,method_to_create_threshold='up_and_down')
+        print(X.shape)
+        print(y.shape)
+        split_index = int(len(X) * 0.8)  # Calculate the 80% split index
+
+        # Split the data
+        X_train, X_test = X[:split_index], X[split_index:]
+        y_train,y_test = y[:split_index], y[split_index:]        
+
+        # Because sparse_categorical_crossentropy is used, the labels should be in the range of 0 to num_classes - 1
+        # Convert y_train and y_test to positive integer labels
+        y_train = y_train + 1
+        y_test = y_test + 1
+
+        # Convert the data to one-hot encoding
+        y_train = tf.one_hot(y_train, depth=3)
+        y_test = tf.one_hot(y_test, depth=3)
+
+        # Define the model
+        model = keras.Sequential([
+            layers.Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
+            layers.Dense(16, activation='relu'),
+            layers.Dense(3, activation='softmax')
+        ])
+
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+        model.fit(X_train, y_train, epochs=50,verbose=0)    
+
+        y_pred = model.predict(X_test)
+        y_pred = np.argmax(y_pred, axis=1)
+        y_pred = y_pred -1
+        y_predict = np.pad(y_pred,(len(y_train),0),'constant',constant_values=0)    
 
     # Trading:
     trading = Trading()

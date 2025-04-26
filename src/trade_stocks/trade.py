@@ -24,7 +24,7 @@ class Trading:
         """
         trade_signal = np.zeros(len(y_predicted))
         for i in range(1, len(y_predicted)):
-            if y_predicted[i] == np.nan or y_predicted[i] == 0:
+            if np.isnan(y_predicted[i]) or y_predicted[i] == 0:
                 trade_signal[i] = 0
             elif y_predicted[i] >= y_predicted[i-1] or y_predicted[i] == 1:
                 trade_signal[i] = 1
@@ -82,4 +82,4 @@ class Trading:
         win_rate = self.win_trade_number/self.total_trade_number
         profit_factor = abs(self.win_profit)/abs(self.lose_profit)
         return total_profit,self.total_trade_number,win_rate,profit_factor
-        
+
